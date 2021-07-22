@@ -6,6 +6,7 @@
         @update:value="onMenuValueUpdate"
         :options="menuOptions"
         inverted
+        :value = "currentMenuKey"
       ></n-menu>
     </n-layout-sider>
     <n-layout
@@ -24,7 +25,9 @@
   </n-layout>
 </template>
 <script lang="ts">
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { watch, ref, h, Component } from 'vue'
+import {InboxOutlined, UserOutlined} from '@vicons/antd'
 import {
   NLayout,
   NLayoutSider,
@@ -32,7 +35,10 @@ import {
   NLayoutContent,
   NLayoutFooter,
   NMenu,
+  NIcon,
 } from "naive-ui";
+
+
 import router from "../router";
 // import setup from "naive-ui/lib/radio/src/use-radio";
 
@@ -50,22 +56,47 @@ export default {
     const routeMap = {
       goods: "/list",
       my: "/detail",
+      personal : "/my-info",
     };
+
+    const renderIcon =  (icon: Component) => {
+      return () => h(NIcon, null, { default: () => h(icon) })
+    }
     const menuOptions = [
       {
         key: "goods",
         label: "商品",
+        icon : renderIcon(InboxOutlined)
       },
       {
         key: "my",
         label: "个人中心",
+        icon : renderIcon(UserOutlined),
+        children : [{
+          key : "personal",
+          label : "个人信息"
+        }]
       },
     ];
 
     const router = useRouter();
+    const route = useRoute();
+
+    const currentMenuKey = ref<string>('goods');
+    
+    watch(()=> route.path, () => {
+        Object.keys(routeMap).some((k: unknown) => {
+            const useKey = k as keyof typeof routeMap;
+            const path = routeMap[useKey];
+            const flag = (path === route.path);
+            if(flag) {
+                currentMenuKey.value = useKey;
+            }
+            return flag;
+        })
+    })
 
     const onMenuValueUpdate = (key: keyof typeof routeMap) => {
-      console.log(key);
       router.push(routeMap[key]);
     };
 
@@ -73,6 +104,7 @@ export default {
       menuOptions,
       onMenuValueUpdate,
       routeMap,
+      currentMenuKey
     };
   },
 };
