@@ -52,6 +52,9 @@ import {NPageHeader, NBreadcrumb, NBreadcrumbItem, NCard,
       title : "数量（件）",
       key : "amount"
   }, {
+      title : "上架状态",
+      key : "state"
+  }, {
       title : "金额", 
       key : "total"
   }]
@@ -60,9 +63,10 @@ interface Data {
   goodsNo : string
   name : string
   barcode : string
-  price : number
+  price : string
   amount : number
-  total : number
+  state : boolean
+  total : string
 }
 
 export default ({
@@ -83,16 +87,25 @@ export default ({
         goodsNo: '1234561',
         name: '矿泉水 550ml',
         barcode: '12421432143214321',
-        price: 2,
-        amount: 1,
-        total: 2,
+        price: '2',
+        amount: 3,
+        state : true,
+        total: '2',
       })
 
-
+      /**
+       * <n-button type="info" ghost>Info</n-button>
+       * 获取数据源
+       * 单价和金额保留两位小数
+       * 金额由单价和数量决定
+       */
       const getDataSource = () => {
         for(let i = 0; i < dataSource.length; i++) {
-          let price = dataSource[i].price;
-          dataSource[i].price = parseFloat(price.toFixed(2));
+          let currentData = dataSource[i];
+          let price = Number(currentData.price);
+          let total = price * currentData.amount;
+          dataSource[i].price = price.toFixed(2);
+          dataSource[i].total = total.toFixed(2);
         }
         return dataSource;
       }
