@@ -15,7 +15,6 @@ const routes=[{
     component : Personal
 }]
 
-
 const router=createRouter({
     history:createWebHashHistory(),
     routes,
