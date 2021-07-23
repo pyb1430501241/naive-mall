@@ -33,8 +33,49 @@
 </template>
 <script lang="ts">
 import { reactive } from '@vue/reactivity';
+import { h, defineComponent  } from 'vue'
 import {NPageHeader, NBreadcrumb, NBreadcrumbItem, NCard, 
-  NDescriptions, NDescriptionsItem, NDivider, NDataTable} from 'naive-ui'
+  NDescriptions, NDescriptionsItem, NDivider, NDataTable, NTag, NButton } from 'naive-ui'
+
+
+    /**
+    * 根据商品状态组合相应的按钮框
+    */
+    const getTags = (row : any) => {
+        let tagKey = row.state;
+        if(tagKey) {
+            return h(
+                NTag,
+                {
+                style: {
+                    marginRight: '6px'
+                },
+                type: 'info'
+                },
+                {
+                default: () => "已上架"
+                }
+            )
+        };
+        return h(
+                NTag,
+                {
+                    style: {
+                        marginRight: '6px'
+                }
+                },
+                {
+                    default: () => "未上架"
+                }
+        )
+    }
+
+    /**
+     * 对一行数据进行操作, 可用枚举
+     */
+    const operating = (key : string, goodsNo : string) => {
+
+    }   
 
   const columns = [{
       title : "商品编号",
@@ -53,10 +94,32 @@ import {NPageHeader, NBreadcrumb, NBreadcrumbItem, NCard,
       key : "amount"
   }, {
       title : "上架状态",
-      key : "state"
+      key : "state",
+      render (row : any) {
+          return getTags(row);
+      }
   }, {
       title : "金额", 
       key : "total"
+  }, {
+      title : "操作",
+      key : "action",
+      render (row : any) {
+        const tags = row.action.map((key : any) => {
+            return h(
+                NButton,
+                {
+                    size: 'small',
+                    style: {
+                        marginRight: '6px'
+                    },
+                    onClick: () => operating(key, row.goodsNo)
+                },
+                { default: () => key}
+            )
+        })
+        return tags;
+      }
   }]
 
 interface Data {
@@ -67,6 +130,7 @@ interface Data {
   amount : number
   state : boolean
   total : string
+  action : any
 }
 
 export default ({
@@ -78,7 +142,9 @@ export default ({
       NDescriptions,
       NDescriptionsItem,
       NDivider,
-      NDataTable
+      NDataTable,
+      NTag,
+      NButton,
   }, setup() {
 
       const dataSource = reactive<Data[]>([]);
@@ -91,6 +157,7 @@ export default ({
         amount: 3,
         state : true,
         total: '2',
+        action : ["下架", "编辑", "详情"]
       })
 
       /**
@@ -111,7 +178,7 @@ export default ({
       }
 
       return {
-          dataSource, columns, getDataSource
+          dataSource, columns, getDataSource, getTags, operating
       }
   }
 
